@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; frame-src https://www.google.com;">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <title>Contact Us | Sign Here Signs &amp; Printing – Swift Current, SK</title>
+  <meta name="description" content="Get in touch with Sign Here Signs & Printing. Call 306-773-8850, email signheresc@gmail.com, or visit us at 50 Cheadle Street W., Swift Current, SK.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/pages.css">
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar" role="navigation" aria-label="Main Navigation">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-logo" aria-label="Sign Here Signs Home">
+      <img src="../images/logo.jpg" alt="Sign Here Signs & Printing Logo" width="52" height="52">
+      <div class="nav-logo-text">SH SIGNS<span>AND PRINTING</span>
+      </div>
+    </a>
+    <ul class="nav-menu" role="list">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="work.html">Our Work</a></li>
+      <li><a href="contact.html" class="nav-cta active">Contact Us</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header" role="banner">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>We'd love to hear from you — let's make something great together</p>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="../index.html">Home</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">Contact</span>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== CONTACT SECTION ===== -->
+<section class="contact-section" aria-labelledby="contact-heading">
+  <div class="container">
+
+    <div class="contact-grid">
+
+      <!-- FORM -->
+      <div class="contact-form-wrap reveal-left">
+        <h2 id="contact-heading">Send Us a Message</h2>
+        <p>Have a project in mind? Fill out the form below and we'll get back to you promptly.</p>
+
+        <div class="form-message" id="form-message" role="alert" aria-live="polite"></div>
+
+        <form id="contact-form" novalidate autocomplete="on" action="https://formspree.io/f/ofuvgamer@gmail.com" method="POST">
+          <!-- Honeypot anti-spam field (hidden) -->
+          <input type="text" name="_gotcha" style="display:none" tabindex="-1" aria-hidden="true">
+          <input type="hidden" name="_subject" value="New Quote Request – Sign Here Signs">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name <span aria-hidden="true" style="color:#e53e3e">*</span></label>
+              <input type="text" id="name" name="name" placeholder="Your full name" required
+                     autocomplete="name" maxlength="100" pattern="[A-Za-zÀ-ÿ '\-]{2,100}">
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address <span aria-hidden="true" style="color:#e53e3e">*</span></label>
+              <input type="email" id="email" name="email" placeholder="you@example.com" required
+                     autocomplete="email" maxlength="150">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="306-000-0000"
+                     autocomplete="tel" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label for="subject">Service Interested In</label>
+              <select id="subject" name="subject">
+                <option value="">Select a service…</option>
+                <option value="Illuminated Signs">Illuminated / Non-Illuminated Signs</option>
+                <option value="Vehicle Wraps">Vehicle Wraps &amp; Decals</option>
+                <option value="CNC Router">CNC Router Services</option>
+                <option value="Sign Installation">Sign Installation</option>
+                <option value="Portable Signs">Portable Signs</option>
+                <option value="Banners">Banners</option>
+                <option value="Panel Signs">Coroplast &amp; Dibond Panel Signs</option>
+                <option value="Digital Board">Digital Board Ads</option>
+                <option value="Laser Engraving">Laser Engraving</option>
+                <option value="Layout Design">Layout Design</option>
+                <option value="Print Materials">Flyers / Posters / Brochures</option>
+                <option value="Business Cards">Business Cards</option>
+                <option value="Magnets">Magnets</option>
+                <option value="Other">Other / General Inquiry</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Your Message <span aria-hidden="true" style="color:#e53e3e">*</span></label>
+            <textarea id="message" name="message" placeholder="Tell us about your project — size, quantity, timeline, any special requirements…" required maxlength="2000" rows="6"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%;font-size:1rem;">
+            Send Message &nbsp;→
+          </button>
+        </form>
+      </div>
+
+      <!-- CONTACT INFO -->
+      <aside class="contact-info reveal-right" aria-label="Contact information">
+        <h3>Get in Touch</h3>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon" aria-hidden="true">📍</div>
+          <div class="contact-info-text">
+            <strong>Our Location</strong>
+            <p>50 Cheadle Street W.<br>Swift Current, SK S9H 0A8</p>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon" aria-hidden="true">📞</div>
+          <div class="contact-info-text">
+            <strong>Phone</strong>
+            <p><a href="tel:3067738850">306-773-8850</a></p>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon" aria-hidden="true">✉️</div>
+          <div class="contact-info-text">
+            <strong>Email</strong>
+            <p><a href="mailto:signheresc@gmail.com">signheresc@gmail.com</a></p>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon" aria-hidden="true">🕐</div>
+          <div class="contact-info-text">
+            <strong>Business Hours</strong>
+            <div class="hours-list" aria-label="Business hours">
+              <div class="hours-row">
+                <strong>Monday – Friday</strong>
+                <span style="color:#2e7d32;font-weight:700;">8:00 AM – 5:00 PM</span>
+              </div>
+              <div class="hours-row" style="color:var(--text-light);opacity:0.7;">
+                <strong>Saturday – Sunday</strong>
+                <span style="color:#e53e3e;">Closed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social links -->
+        <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--gray-light);">
+          <strong style="font-family:'Oswald',sans-serif;font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:14px;">Follow Us</strong>
+          <div style="display:flex;gap:12px;">
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"
+               style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--green-pale);border-radius:var(--radius);font-family:'Oswald',sans-serif;font-size:0.82rem;letter-spacing:1px;text-transform:uppercase;color:var(--green-dark);transition:var(--transition);"
+               onmouseover="this.style.background='var(--green-light)';this.style.color='white'"
+               onmouseout="this.style.background='var(--green-pale)';this.style.color='var(--green-dark)'"
+               aria-label="Facebook">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              Facebook
+            </a>
+            <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer"
+               style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--green-pale);border-radius:var(--radius);font-family:'Oswald',sans-serif;font-size:0.82rem;letter-spacing:1px;text-transform:uppercase;color:var(--green-dark);transition:var(--transition);"
+               onmouseover="this.style.background='var(--green-light)';this.style.color='white'"
+               onmouseout="this.style.background='var(--green-pale)';this.style.color='var(--green-dark)'"
+               aria-label="YouTube">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+              YouTube
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MAP SECTION ===== -->
+<section class="map-section" aria-labelledby="map-heading" style="padding-bottom:80px;">
+  <div class="container" style="text-align:center;">
+    <p class="reveal" style="font-family:'Oswald',sans-serif;font-size:0.82rem;letter-spacing:3px;text-transform:uppercase;color:#2e7d32;margin-bottom:10px;">FIND US</p>
+    <h2 id="map-heading" class="reveal" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:14px;color:var(--text-dark);">Visit Our Shop</h2>
+    <p class="reveal" style="color:var(--text-light);max-width:520px;margin:0 auto 16px;font-size:1rem;line-height:1.7;">Come see us at 50 Cheadle Street W., Swift Current, SK. We're happy to discuss your project in person.</p>
+    <span class="section-line reveal" aria-hidden="true" style="margin-bottom:32px;"></span>
+    <div class="map-embed reveal" role="region" aria-label="Google Maps showing our location at 50 Cheadle Street W., Swift Current, SK">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483.7!2d-107.7988!3d50.2871!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x531b64a8e7a3e9fb%3A0x0!2s50+Cheadle+St+W%2C+Swift+Current%2C+SK+S9H+0A8!5e0!3m2!1sen!2sca!4v1620000000000"
+        width="100%" height="420"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Sign Here Signs & Printing location map"
+        aria-label="Map showing 50 Cheadle Street W., Swift Current, SK S9H 0A8">
+      </iframe>
+    </div>
+    <div style="margin-top:24px;display:flex;justify-content:center;" class="reveal">
+      <a href="https://www.google.com/maps/dir/?api=1&destination=50+Cheadle+St+W,+Swift+Current,+SK+S9H+0A8"
+         target="_blank" rel="noopener noreferrer"
+         class="btn btn-green-outline" aria-label="Get directions to Sign Here Signs on Google Maps">
+        📍 &nbsp;Get Directions
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="../images/logo_white.png" alt="Sign Here Signs & Printing Logo" width="64" height="64">
+        <p>Serving Swift Current and surrounding areas since 2005. Quality signs and printing for every need — from business branding to personal projects.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/sign.signs" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.google.com/search?sca_esv=516c7d9f503f7416&rlz=1C1PNBB_enPH1158PH1158&sxsrf=ANbL-n7bKEoaVQSa3A9bMGZte54_b7y3lg:1780491302475&si=AL3DRZHrmvnFAVQPOO2Bzhf8AX9KZZ6raUI_dT7DG_z0kV2_x_lG4kUCnuw3X_PSFz5sjS7cGm407oRcO-1PHJi2bkcAo6SmpMbk2y2PmM0gn7NehJ7FiroXHPZEqHxNwiuZ-EO7xLgZnw7rovccYuZUv94QKRDe_w%3D%3D&q=Sign+Here+Signs+%26+Printing+Reviews&sa=X&ved=2ahUKEwjM--_8juuUAxWvgVYBHeNnNYwQ0bkNegQIJBAI&biw=1920&bih=911&dpr=1#" target="_blank" rel="noopener noreferrer" aria-label="Google">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.35 11.1H12.18V13.83H18.69C18.36 17.64 15.19 19.27 12.19 19.27C8.36 19.27 5 16.25 5 12C5 7.9 8.2 4.73 12.2 4.73C15.29 4.73 17.1 6.7 17.1 6.7L19 4.72C19 4.72 16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12C2.03 17.05 6.16 22 12.25 22C17.6 22 21.5 18.33 21.5 12.91C21.5 11.76 21.35 11.1 21.35 11.1Z"/></svg>
+          </a>
+          <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.4,6.7c0-0.3,0-0.6-0.1-0.8C21.8,2.4,19,0,15.5,0H6.8c-1,0-2,0.2-2.9,0.6C1.4,1.9,0.1,3.9,0,6.8c0,2.9,0,5.8,0,8.7
+            c0,0.5,0,0.9,0.1,1.4c0.5,2.9,3.1,5.4,6,5.5c1.7,0.1,3.4,0,5,0v0c1.5,0,2.9,0,4.4,0c0.5,0,0.9,0,1.4-0.1c3.2-0.7,5.4-3.3,5.4-6.5
+            C22.4,12.7,22.4,9.7,22.4,6.7z M20.3,15.5c0,2.8-2,4.8-4.8,4.8c-2.9,0-5.8,0-8.7,0c-2.7,0-4.7-2-4.7-4.7c0-2.9,0-5.8,0-8.8
+            c0-2.7,2-4.7,4.7-4.7c1.5,0,2.9,0,4.4,0h4.3c2.7,0,4.7,2,4.7,4.7V15.5z"/><path d="M11.3,5.7c-3,0-5.5,2.5-5.5,5.5c0,3.1,2.4,5.5,5.5,5.5c3,0,5.5-2.4,5.5-5.5C16.8,8.2,14.3,5.7,11.3,5.7z M11.3,14.7
+            c-1.9,0-3.5-1.6-3.5-3.5c0-1.9,1.6-3.5,3.5-3.5c1.9,0,3.5,1.6,3.5,3.5C14.8,13.1,13.2,14.7,11.3,14.7z"/><path d="M17.1,4c-0.7,0-1.3,0.6-1.3,1.3c0,0.7,0.6,1.3,1.3,1.3c0.7,0,1.3-0.6,1.3-1.3C18.4,4.6,17.8,4,17.1,4z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="../index.html">&#8594; Home</a></li>
+          <li><a href="about.html">&#8594; About Us</a></li>
+          <li><a href="services.html">&#8594; Services</a></li>
+          <li><a href="work.html">&#8594; Our Work</a></li>
+          <li><a href="contact.html">&#8594; Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services.html">&#8594; Illuminated Signs</a></li>
+          <li><a href="services.html">&#8594; Vehicle Wraps</a></li>
+          <li><a href="services.html">&#8594; Banners</a></li>
+          <li><a href="services.html">&#8594; Business Cards</a></li>
+          <li><a href="services.html">&#8594; Laser Engraving</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-item">
+          <span class="icon" aria-hidden="true"><svg width="24" height="42" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.8,26.8c-0.1-0.2-0.3-0.3-0.4-0.5c-2.4-4.3-4.8-8.7-7.2-13c-0.9-1.6-1.3-3.4-1.1-5.3c0.4-3.2,2-5.7,5-7.1
+  c3-1.5,6-1.3,8.9,0.6c2.2,1.5,3.5,3.6,3.9,6.2c0.3,2-0.1,3.8-1,5.5c-2.4,4.3-4.8,8.7-7.2,13c-0.1,0.2-0.3,0.3-0.4,0.5
+  C9,26.8,8.9,26.8,8.8,26.8z M9,4.5c-2.4,0-4.4,1.9-4.5,4.4c-0.1,2.4,1.9,4.5,4.4,4.5c2.5,0,4.5-1.9,4.5-4.4C13.4,6.6,11.4,4.5,9,4.5
+  z"/></svg></span>
+          <div><a href="https://www.google.com/maps?ll=50.28328,-107.801058&z=16&t=m&hl=en-GB&gl=US&mapclient=embed&q=50+Cheadle+St+W+Swift+Current,+SK+S9H+0A8">50 Cheadle Street W.<br>Swift Current, SK S9H 0A8</a></div>
+        </div>
+        <div class="footer-contact-item">
+          <span class="icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.4,17.1c0.7-0.7,1.4-1.3,2-1.9c0.8-0.7,1.5-0.7,2.2,0.1c1,1.1,2.1,2.3,3.1,3.4c0.8,0.9,0.7,1.8-0.3,2.5
+  c-1.2,0.9-2.6,1.1-4.1,1.2c-1.9,0.1-3.6-0.6-5.2-1.6C6.7,18,3.2,14.4,1,9.7C0.7,9,0.4,8.3,0.3,7.6C-0.4,5,0.3,2.8,1.9,0.8
+  C2,0.6,2.2,0.5,2.4,0.3C3-0.2,3.7-0.1,4.2,0.5c0.9,0.9,1.7,1.9,2.5,2.8C7,3.6,7.3,3.9,7.5,4.1c0.6,0.7,0.6,1.4-0.1,2.1
+  C6.8,6.7,6.2,7.3,5.5,7.9C5.4,8,5.3,8.1,5.4,8.3c1.2,2.5,2.6,4.8,4.9,6.6C11.3,15.6,12.3,16.3,13.4,17.1z"/></svg></span>
+          <div><a href="tel:3067738850">306-773-8850</a></div>
+        </div>
+        <div class="footer-contact-item">
+          <span class="icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"> <path d="M23.6,5c0,3.6,0,7.2,0,10.9c0,0,0,0,0,0c-0.3,1.3-1.1,1.8-2.4,1.8c-6.3,0-12.6,0-18.9,0c-0.1,0-0.2,0-0.2,0
+    c-1.2,0-2.2-1-2.2-2.2C0,12,0,8.6,0,5.2C0,5.1,0,5,0,5c0,0,0.1,0,0.1,0c3.2,2.1,6.4,4.3,9.6,6.4c1.4,1,2.8,1,4.3,0
+    c2.9-1.9,5.7-3.8,8.6-5.7C22.9,5.5,23.3,5.2,23.6,5z"/>
+  <path d="M23.6,2.5c-0.1,0.2-0.1,0.5-0.3,0.7c-0.2,0.3-0.4,0.6-0.7,0.7c-3.2,2.2-6.4,4.3-9.7,6.4c-0.8,0.5-1.6,0.5-2.4,0
+    C7.4,8.2,4.2,6.1,0.9,3.9C0.2,3.4-0.2,2.5,0.1,1.6c0.3-0.9,1-1.5,2-1.6c0.1,0,0.1,0,0.2,0c6.3,0,12.7,0,19,0c1.1,0,1.9,0.6,2.2,1.5
+    c0,0.1,0.1,0.3,0.1,0.4C23.6,2.1,23.6,2.3,23.6,2.5z"/></svg></span>
+          <div><a href="mailto:signheresc@gmail.com">signheresc@gmail.com</a></div>
+        </div>
+        <div class="footer-contact-item">
+          <span class="icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.8,17.6C4,17.6,0,13.7,0,8.8C0,4,4,0,8.8,0c4.9,0,8.8,4,8.8,8.8C17.6,13.7,13.7,17.6,8.8,17.6z M8.8,0.9c-4.4,0-8,3.6-8,8
+  c0,4.4,3.6,8,8,8c4.4,0,8-3.6,8-8C16.8,4.4,13.2,0.9,8.8,0.9z"/>
+<path d="M8.8,1.3c-4.1,0-7.5,3.4-7.5,7.5c0,4.1,3.4,7.5,7.5,7.5c4.1,0,7.5-3.4,7.5-7.5S12.9,1.3,8.8,1.3z M11.6,12.3
+  c-0.1,0.1-0.3,0.2-0.4,0.2s-0.3-0.1-0.4-0.2L8.1,9.6V5c0-0.3,0.3-0.6,0.6-0.6c0.3,0,0.6,0.3,0.6,0.6v4.2l2.3,2.3
+  C11.9,11.7,11.9,12,11.6,12.3z"/></svg></span>
+          <div>Mon–Fri: 8am – 5pm<br><span style="color:rgba(255,255,255,0.4);font-size:0.82rem">Sat–Sun: Closed</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 SH Signs and Printing. All rights reserved.</p>
+      <p class="footer-credit">Designed with ❤️ for Sign Here Signs &mdash; <a href="mailto:addesign.creatives@gmail.com">hire me</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
