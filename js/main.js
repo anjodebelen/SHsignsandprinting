@@ -489,3 +489,50 @@
     window.addEventListener('load', start);
   }
 })();
+
+// ============================================
+// DISABLE DRAG & CONTEXT MENU ON IMAGES / SVG
+// ============================================
+(function () {
+  'use strict';
+
+  function lockAssets() {
+    // All img and svg elements
+    const assets = document.querySelectorAll('img, svg');
+
+    assets.forEach(function (el) {
+      // Block drag start
+      el.addEventListener('dragstart', function (e) { e.preventDefault(); return false; }, true);
+      // Block right-click / long-press context menu
+      el.addEventListener('contextmenu', function (e) { e.preventDefault(); return false; }, true);
+      // Block touch-hold on mobile (iOS callout)
+      el.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
+    });
+  }
+
+  // Run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', lockAssets);
+  } else {
+    lockAssets();
+  }
+
+  // Also catch any dynamically inserted images (e.g. marquee clones)
+  if (window.MutationObserver) {
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType !== 1) return;
+          var targets = node.matches('img, svg')
+            ? [node]
+            : Array.from(node.querySelectorAll('img, svg'));
+          targets.forEach(function (el) {
+            el.addEventListener('dragstart',   function (e) { e.preventDefault(); }, true);
+            el.addEventListener('contextmenu', function (e) { e.preventDefault(); }, true);
+          });
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+})();
