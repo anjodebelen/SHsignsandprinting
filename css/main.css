@@ -596,3 +596,43 @@ footer {
   }
   .section-pad { padding: 60px 0; }
 }
+
+/* ============================================
+   DISABLE IMAGE / SVG / ICON DRAG & SELECTION
+   ============================================ */
+img,
+svg,
+[class*="card-emoji"],
+[class*="hm-card-emoji"],
+[class*="icon"],
+.service-row-icon,
+.work-card img,
+.stat-icon,
+.feature-icon,
+.testimonial-avatar,
+.about-img,
+.hero-img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+}
+
+/* Re-enable pointer-events only for interactive images (linked, or inside buttons/links) */
+a img,
+a svg,
+button img,
+button svg,
+[role="button"] img,
+[role="button"] svg {
+  pointer-events: auto;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
