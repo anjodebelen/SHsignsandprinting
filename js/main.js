@@ -282,78 +282,84 @@
     });
   }
 
-  // ---- Contact form with Formspree ----
+  // ---- Contact form — pure PHP backend, no third-party services ----
   function initContactForm() {
     const form = document.getElementById('contact-form');
     if (!form) return;
 
-    // Input sanitization
+    // Path to mail.php — works as-is when both files are on the same host
+    const MAIL_ENDPOINT  = '../mail.php';
+    const RECIPIENT_EMAIL = 'addesign.creatives@gmail.com';
+
     function sanitize(str) {
-      return str.replace(/[<>]/g, '').trim();
+      return (str || '').replace(/[<>]/g, '').trim();
     }
 
-    form.addEventListener('submit', async (e) => {
+    function showMsg(type, text) {
+      const msgDiv = document.getElementById('form-message');
+      if (!msgDiv) return;
+      msgDiv.className = 'form-message ' + type;
+      msgDiv.textContent = text;
+      msgDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const msgDiv = document.querySelector('.form-message');
       const submitBtn = form.querySelector('[type="submit"]');
 
-      const name = sanitize(form.querySelector('#name').value);
-      const email = sanitize(form.querySelector('#email').value);
-      const phone = sanitize(form.querySelector('#phone').value || '');
-      const subject = sanitize(form.querySelector('#subject').value || '');
-      const message = sanitize(form.querySelector('#message').value);
+      const data = {
+        from_name:  sanitize(form.querySelector('#name')?.value),
+        from_email: sanitize(form.querySelector('#email')?.value),
+        phone:      sanitize(form.querySelector('#phone')?.value),
+        subject:    sanitize(form.querySelector('#subject')?.value),
+        message:    sanitize(form.querySelector('#message')?.value),
+        website:    '', // honeypot — bots fill this, humans don't
+      };
 
-      // Basic validation
-      if (!name || !email || !message) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message error';
-          msgDiv.textContent = 'Please fill in all required fields.';
-        }
+      // Client-side validation
+      if (!data.from_name || !data.from_email || !data.message) {
+        showMsg('error', '⚠️ Please fill in all required fields (Name, Email, Message).');
         return;
       }
-
-      // Email validation
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message error';
-          msgDiv.textContent = 'Please enter a valid email address.';
-        }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.from_email)) {
+        showMsg('error', '⚠️ Please enter a valid email address.');
         return;
       }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
+      submitBtn.textContent = 'Sending…';
+      showMsg('', '');
 
       try {
-        const resp = await fetch('https://formspree.io/f/ofuvgamer@gmail.com', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ name, email, phone, subject, message })
+        const resp = await fetch(MAIL_ENDPOINT, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(data),
         });
 
-        if (msgDiv) {
-          if (resp.ok || resp.status === 200 || resp.status === 302) {
-            msgDiv.className = 'form-message success';
-            msgDiv.textContent = '✅ Thank you! Your message has been sent. We\'ll be in touch soon.';
-            form.reset();
-          } else {
-            msgDiv.className = 'form-message success';
-            msgDiv.textContent = '✅ Thank you for reaching out! We\'ll respond shortly at ' + email;
-            form.reset();
-          }
+        const json = await resp.json().catch(() => ({}));
+
+        if (resp.ok && json.ok) {
+          showMsg('success',
+            '✅ Thank you, ' + data.from_name + '! Your message has been sent. We\'ll be in touch soon.'
+          );
+          form.reset();
+        } else {
+          showMsg('error',
+            '❌ ' + (json.error || 'Something went wrong.') +
+            ' You can also email us directly at ' + RECIPIENT_EMAIL
+          );
         }
       } catch (err) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message success';
-          msgDiv.textContent = '✅ Message received! We\'ll get back to you soon at ' + email;
-          form.reset();
-        }
+        // Network / server unreachable
+        showMsg('error',
+          '❌ Could not reach the server. Please email us directly at ' + RECIPIENT_EMAIL
+        );
       }
 
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Send Message';
+      submitBtn.textContent = 'Send Message →';
     });
   }
 
