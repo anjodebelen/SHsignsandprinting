@@ -290,7 +290,6 @@
     // ── Helpers ──────────────────────────────────────────────────
     const sanitize = str => (str || '').replace(/[<>]/g, '').trim();
     const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const WEB3_KEY  = '4f3b62e6-11de-46ae-a956-33d848eb80ee'; // ← Go to https://web3forms.com/ → enter addesign.creatives@gmail.com → click "Create Access Key" → check Gmail inbox → paste key here
 
     function getEl(id) { return document.getElementById(id); }
 
@@ -312,19 +311,6 @@
       if (errEl) errEl.textContent = '';
     }
 
-    function showBanner(type, msg) {
-      const el = getEl('form-message');
-      if (!el) return;
-      el.className = 'form-message ' + type;
-      el.textContent = msg;
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function clearBanner() {
-      const el = getEl('form-message');
-      if (el) { el.className = 'form-message'; el.textContent = ''; }
-    }
-
     // ── Character counter on textarea ────────────────────────────
     const msgArea  = getEl('message');
     const charCount = getEl('char-count');
@@ -340,94 +326,47 @@
       if (!el) return;
       el.addEventListener('blur', function () {
         const val = sanitize(this.value);
-        if (id === 'name'    && !val)              setError(id, 'Please enter your full name.');
-        else if (id === 'email' && !val)           setError(id, 'Please enter your email address.');
+        if (id === 'name'    && !val)                   setError(id, 'Please enter your full name.');
+        else if (id === 'email' && !val)                setError(id, 'Please enter your email address.');
         else if (id === 'email' && !EMAIL_RE.test(val)) setError(id, 'Please enter a valid email address (e.g. you@example.com).');
-        else if (id === 'message' && !val)         setError(id, 'Please enter a message.');
-        else                                       clearError(id);
+        else if (id === 'message' && !val)              setError(id, 'Please enter a message.');
+        else                                            clearError(id);
       });
-      // Clear error as soon as user starts correcting
       el.addEventListener('input', function () {
         if (this.getAttribute('aria-invalid') === 'true') clearError(id);
       });
     });
 
-    // ── Submit ───────────────────────────────────────────────────
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      clearBanner();
-
+    // ── Submit — validate then let FormSubmit native POST through ─
+    form.addEventListener('submit', function (e) {
       const name    = sanitize(getEl('name')?.value);
       const email   = sanitize(getEl('email')?.value);
-      const phone   = sanitize(getEl('phone')?.value);
-      const subject = sanitize(getEl('subject')?.value);
       const message = sanitize(getEl('message')?.value);
 
-      // Validate all required fields, collect errors
-      let firstInvalid = null;
+      // Clear previous errors
       ['name', 'email', 'message'].forEach(id => clearError(id));
 
-      if (!name)                     { setError('name',    'Please enter your full name.');                              firstInvalid = firstInvalid || 'name'; }
-      if (!email)                    { setError('email',   'Please enter your email address.');                          firstInvalid = firstInvalid || 'email'; }
-      else if (!EMAIL_RE.test(email)){ setError('email',   'Please enter a valid email address (e.g. you@example.com).'); firstInvalid = firstInvalid || 'email'; }
-      if (!message)                  { setError('message', 'Please enter your message.');                                firstInvalid = firstInvalid || 'message'; }
+      let firstInvalid = null;
+      if (!name)                      { setError('name',    'Please enter your full name.');                               firstInvalid = firstInvalid || 'name'; }
+      if (!email)                     { setError('email',   'Please enter your email address.');                           firstInvalid = firstInvalid || 'email'; }
+      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address (e.g. you@example.com).'); firstInvalid = firstInvalid || 'email'; }
+      if (!message)                   { setError('message', 'Please enter your message.');                                 firstInvalid = firstInvalid || 'message'; }
 
       if (firstInvalid) {
-        // Move focus to first invalid field so keyboard/SR users land there
+        // Stop the POST — show errors and focus first invalid field
+        e.preventDefault();
         getEl(firstInvalid)?.focus();
-        showBanner('error', 'Please correct the highlighted fields before submitting.');
         return;
       }
 
-      // Key not configured — open mailto fallback
-      if (WEB3_KEY === '4f3b62e6-11de-46ae-a956-33d848eb80ee') {
-        const body = ['Name: '+name,'Email: '+email,'Phone: '+(phone||'N/A'),'Service: '+(subject||'N/A'),'','Message:',message].join('\n');
-        window.location.href = 'mailto:addesign.creatives@gmail.com'
-          + '?subject=' + encodeURIComponent('Website Enquiry: '+(subject||'General'))
-          + '&body='    + encodeURIComponent(body);
-        showBanner('error', 'Form not fully configured — your email app has been opened with the message pre-filled.');
-        return;
-      }
-
+      // Validation passed — show sending state then let the form POST naturally
       const submitBtn = getEl('submit-btn');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.querySelector('.btn-label').textContent = 'Sending…';
+        const label = submitBtn.querySelector('.btn-label');
+        if (label) label.textContent = 'Sending…';
       }
-
-      try {
-        const resp   = await fetch('https://api.web3forms.com/submit', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            access_key:   WEB3_KEY,
-            subject:      'New Enquiry — Sign Here Signs' + (subject ? ': ' + subject : ''),
-            from_name:    name,
-            email,
-            phone:        phone  || 'Not provided',
-            service:      subject || 'Not specified',
-            message,
-            botcheck:     ''
-          })
-        });
-        const result = await resp.json();
-
-        if (result.success) {
-          showBanner('success', '✅ Thank you, ' + name + '! Your message has been sent. We\'ll get back to you soon.');
-          form.reset();
-          if (charCount) charCount.textContent = '0';
-          ['name','email','message'].forEach(id => clearError(id));
-        } else {
-          throw new Error(result.message || 'Submission failed');
-        }
-      } catch (err) {
-        showBanner('error', '❌ Could not send your message. Please email us at addesign.creatives@gmail.com or call 306-773-8850.');
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.querySelector('.btn-label').textContent = 'Send Message';
-        }
-      }
+      // FormSubmit handles delivery and redirects to _next URL
     });
   }
 
