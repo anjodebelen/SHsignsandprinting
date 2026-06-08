@@ -73,23 +73,18 @@
 
         <form
           id="contact-form"
-          action="https://script.google.com/macros/s/AKfycbzBkTgiV6rBprwdHHvyaAgbANZnp5eO2zeNsnBwo-5mzuzufUAT4aCVsPrNQ7-u4Aih/exec"
-          method="POST"
           novalidate
           autocomplete="on"
           aria-labelledby="contact-heading"
         >
-          <!-- ── configuration ──────────────────── -->
-          <!-- Redirect back to contact page after success -->
-          <input type="hidden" name="_next"     value="https://anjodebelen.github.io/SHsignsandprinting/pages/success.html">
-          <!-- Custom email subject -->
-          <input type="hidden" name="_subject"  value="New Enquiry — Sign Here Signs &amp; Printing">
-          <!-- Disable FormSubmit's own captcha (we use honeypot) -->
-          <input type="hidden" name="_captcha"  value="false">
-          <!-- Use the clean table template -->
-          <input type="hidden" name="_template" value="table">
           <!-- Honeypot anti-spam — hidden from real users, traps bots -->
-          <input type="text"   name="_honey"    style="display:none" tabindex="-1" aria-hidden="true">
+          <input type="text" name="_honey" style="display:none" tabindex="-1" aria-hidden="true">
+
+          <!-- ── Required note ─────────────────────────────────── -->
+          <p class="required-note">
+            <abbr title="Required" class="required-mark" aria-hidden="true">*</abbr>
+            Indicates a required field
+          </p>
 
           <!-- ── Row 1: Name + Email ──────────────────────────── -->
           <div class="form-row">
@@ -209,11 +204,40 @@
             <span id="message-error" class="field-error" role="alert" aria-live="polite"></span>
           </div>
 
-          <!-- ── Required note ─────────────────────────────────── -->
-          <p class="required-note">
-            <abbr title="Required" class="required-mark" aria-hidden="true">*</abbr>
-            
-          </p>
+          <!-- ── File Attachment ───────────────────────────────── -->
+          <div class="form-group file-attach-group">
+            <label for="file-upload">
+              Attach Files
+              <span class="optional-label">(optional)</span>
+            </label>
+            <div
+              class="file-upload-area"
+              id="file-upload-area"
+              role="button"
+              tabindex="0"
+              aria-label="Upload files — click or drag and drop"
+            >
+              <input
+                type="file"
+                id="file-upload"
+                name="attachments"
+                multiple
+                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.ai,.eps,.svg"
+                aria-label="Upload files"
+              >
+              <div class="file-upload-icon" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <p class="file-upload-label">Drag &amp; drop files here, or <span>browse</span></p>
+              <p class="file-upload-hint">Images, videos, PDFs, documents — up to 10 files, 20 MB each</p>
+            </div>
+            <ul class="file-list" id="file-list" aria-label="Selected files" aria-live="polite"></ul>
+            <p class="file-attach-note" id="file-attach-note"></p>
+          </div>
 
           <!-- ── Submit ────────────────────────────────────────── -->
           <button
@@ -227,9 +251,6 @@
 
         </form>
       </div>
-
-
-      <!-- CONTACT INFO -->
       <aside class="contact-info reveal-right" aria-label="Contact information">
         <h3>Get in Touch</h3>
 
