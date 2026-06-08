@@ -287,73 +287,147 @@
     const form = document.getElementById('contact-form');
     if (!form) return;
 
-    // Input sanitization
-    function sanitize(str) {
-      return str.replace(/[<>]/g, '').trim();
+    // ── Helpers ──────────────────────────────────────────────────
+    const sanitize = str => (str || '').replace(/[<>]/g, '').trim();
+    const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const WEB3_KEY  = '4f3b62e6-11de-46ae-a956-33d848eb80ee'; // ← Go to https://web3forms.com/ → enter addesign.creatives@gmail.com → click "Create Access Key" → check Gmail inbox → paste key here
+
+    function getEl(id) { return document.getElementById(id); }
+
+    function setError(inputId, msg) {
+      const input = getEl(inputId);
+      const errEl = getEl(inputId + '-error');
+      if (!input) return;
+      input.setAttribute('aria-invalid', 'true');
+      input.classList.add('input-error');
+      if (errEl) errEl.textContent = msg;
     }
 
-    form.addEventListener('submit', async (e) => {
+    function clearError(inputId) {
+      const input = getEl(inputId);
+      const errEl = getEl(inputId + '-error');
+      if (!input) return;
+      input.setAttribute('aria-invalid', 'false');
+      input.classList.remove('input-error');
+      if (errEl) errEl.textContent = '';
+    }
+
+    function showBanner(type, msg) {
+      const el = getEl('form-message');
+      if (!el) return;
+      el.className = 'form-message ' + type;
+      el.textContent = msg;
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearBanner() {
+      const el = getEl('form-message');
+      if (el) { el.className = 'form-message'; el.textContent = ''; }
+    }
+
+    // ── Character counter on textarea ────────────────────────────
+    const msgArea  = getEl('message');
+    const charCount = getEl('char-count');
+    if (msgArea && charCount) {
+      msgArea.addEventListener('input', function () {
+        charCount.textContent = this.value.length;
+      });
+    }
+
+    // ── Inline validation on blur (real-time feedback) ───────────
+    ['name', 'email', 'message'].forEach(function (id) {
+      const el = getEl(id);
+      if (!el) return;
+      el.addEventListener('blur', function () {
+        const val = sanitize(this.value);
+        if (id === 'name'    && !val)              setError(id, 'Please enter your full name.');
+        else if (id === 'email' && !val)           setError(id, 'Please enter your email address.');
+        else if (id === 'email' && !EMAIL_RE.test(val)) setError(id, 'Please enter a valid email address (e.g. you@example.com).');
+        else if (id === 'message' && !val)         setError(id, 'Please enter a message.');
+        else                                       clearError(id);
+      });
+      // Clear error as soon as user starts correcting
+      el.addEventListener('input', function () {
+        if (this.getAttribute('aria-invalid') === 'true') clearError(id);
+      });
+    });
+
+    // ── Submit ───────────────────────────────────────────────────
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
+      clearBanner();
 
-      const msgDiv = document.querySelector('.form-message');
-      const submitBtn = form.querySelector('[type="submit"]');
+      const name    = sanitize(getEl('name')?.value);
+      const email   = sanitize(getEl('email')?.value);
+      const phone   = sanitize(getEl('phone')?.value);
+      const subject = sanitize(getEl('subject')?.value);
+      const message = sanitize(getEl('message')?.value);
 
-      const name = sanitize(form.querySelector('#name').value);
-      const email = sanitize(form.querySelector('#email').value);
-      const phone = sanitize(form.querySelector('#phone').value || '');
-      const subject = sanitize(form.querySelector('#subject').value || '');
-      const message = sanitize(form.querySelector('#message').value);
+      // Validate all required fields, collect errors
+      let firstInvalid = null;
+      ['name', 'email', 'message'].forEach(id => clearError(id));
 
-      // Basic validation
-      if (!name || !email || !message) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message error';
-          msgDiv.textContent = 'Please fill in all required fields.';
-        }
+      if (!name)                     { setError('name',    'Please enter your full name.');                              firstInvalid = firstInvalid || 'name'; }
+      if (!email)                    { setError('email',   'Please enter your email address.');                          firstInvalid = firstInvalid || 'email'; }
+      else if (!EMAIL_RE.test(email)){ setError('email',   'Please enter a valid email address (e.g. you@example.com).'); firstInvalid = firstInvalid || 'email'; }
+      if (!message)                  { setError('message', 'Please enter your message.');                                firstInvalid = firstInvalid || 'message'; }
+
+      if (firstInvalid) {
+        // Move focus to first invalid field so keyboard/SR users land there
+        getEl(firstInvalid)?.focus();
+        showBanner('error', 'Please correct the highlighted fields before submitting.');
         return;
       }
 
-      // Email validation
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message error';
-          msgDiv.textContent = 'Please enter a valid email address.';
-        }
+      // Key not configured — open mailto fallback
+      if (WEB3_KEY === '4f3b62e6-11de-46ae-a956-33d848eb80ee') {
+        const body = ['Name: '+name,'Email: '+email,'Phone: '+(phone||'N/A'),'Service: '+(subject||'N/A'),'','Message:',message].join('\n');
+        window.location.href = 'mailto:addesign.creatives@gmail.com'
+          + '?subject=' + encodeURIComponent('Website Enquiry: '+(subject||'General'))
+          + '&body='    + encodeURIComponent(body);
+        showBanner('error', 'Form not fully configured — your email app has been opened with the message pre-filled.');
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
+      const submitBtn = getEl('submit-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.querySelector('.btn-label').textContent = 'Sending…';
+      }
 
       try {
-        const resp = await fetch('https://formspree.io/f/ofuvgamer@gmail.com', {
-          method: 'POST',
+        const resp   = await fetch('https://api.web3forms.com/submit', {
+          method:  'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ name, email, phone, subject, message })
+          body: JSON.stringify({
+            access_key:   WEB3_KEY,
+            subject:      'New Enquiry — Sign Here Signs' + (subject ? ': ' + subject : ''),
+            from_name:    name,
+            email,
+            phone:        phone  || 'Not provided',
+            service:      subject || 'Not specified',
+            message,
+            botcheck:     ''
+          })
         });
+        const result = await resp.json();
 
-        if (msgDiv) {
-          if (resp.ok || resp.status === 200 || resp.status === 302) {
-            msgDiv.className = 'form-message success';
-            msgDiv.textContent = '✅ Thank you! Your message has been sent. We\'ll be in touch soon.';
-            form.reset();
-          } else {
-            msgDiv.className = 'form-message success';
-            msgDiv.textContent = '✅ Thank you for reaching out! We\'ll respond shortly at ' + email;
-            form.reset();
-          }
+        if (result.success) {
+          showBanner('success', '✅ Thank you, ' + name + '! Your message has been sent. We\'ll get back to you soon.');
+          form.reset();
+          if (charCount) charCount.textContent = '0';
+          ['name','email','message'].forEach(id => clearError(id));
+        } else {
+          throw new Error(result.message || 'Submission failed');
         }
       } catch (err) {
-        if (msgDiv) {
-          msgDiv.className = 'form-message success';
-          msgDiv.textContent = '✅ Message received! We\'ll get back to you soon at ' + email;
-          form.reset();
+        showBanner('error', '❌ Could not send your message. Please email us at addesign.creatives@gmail.com or call 306-773-8850.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.querySelector('.btn-label').textContent = 'Send Message';
         }
       }
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send Message';
     });
   }
 
@@ -535,4 +609,59 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }
+})();
+
+// ============================================
+// DISABLE VIEW SOURCE (Ctrl+U) & DEVTOOLS SHORTCUTS
+// ============================================
+(function () {
+  'use strict';
+
+  document.addEventListener('keydown', function (e) {
+    var key = e.key ? e.key.toLowerCase() : '';
+    var ctrl = e.ctrlKey || e.metaKey; // metaKey covers Cmd on Mac
+
+    // Ctrl+U — View Source
+    if (ctrl && key === 'u') {
+      e.preventDefault();
+      return false;
+    }
+
+    // F12 — DevTools
+    if (e.keyCode === 123) {
+      e.preventDefault();
+      return false;
+    }
+
+    // Ctrl+Shift+I — DevTools (Inspector)
+    if (ctrl && e.shiftKey && key === 'i') {
+      e.preventDefault();
+      return false;
+    }
+
+    // Ctrl+Shift+J — DevTools (Console)
+    if (ctrl && e.shiftKey && key === 'j') {
+      e.preventDefault();
+      return false;
+    }
+
+    // Ctrl+Shift+C — DevTools (Element picker)
+    if (ctrl && e.shiftKey && key === 'c') {
+      e.preventDefault();
+      return false;
+    }
+
+    // Ctrl+S — Save page
+    if (ctrl && key === 's') {
+      e.preventDefault();
+      return false;
+    }
+
+    // Ctrl+A — Select all
+    if (ctrl && key === 'a') {
+      e.preventDefault();
+      return false;
+    }
+  }, true); // capture phase so it fires before anything else
+
 })();
