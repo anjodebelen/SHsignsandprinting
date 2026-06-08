@@ -62,26 +62,25 @@
         <h2 id="contact-heading">Send Us a Message</h2>
         <p>Have a project in mind? Fill out the form below and we'll get back to you promptly.</p>
 
+        <!-- Success / error banner — populated by JS -->
+        <div
+          id="form-message"
+          class="form-message"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        ></div>
+
         <form
           id="contact-form"
-          action="https://formsubmit.co/addesign.creatives@gmail.com"
+          action="send-mail.php"
           method="POST"
           novalidate
           autocomplete="on"
           aria-labelledby="contact-heading"
-          enctype="multipart/form-data"
         >
-          <!-- ── FormSubmit configuration ──────────────────────── -->
-          <!-- Disable the default captcha (we use honeypot instead) -->
-          <input type="hidden" name="_captcha"    value="false">
-          <!-- Custom subject line in the inbox -->
-          <input type="hidden" name="_subject"    value="New Enquiry — Sign Here Signs &amp; Printing">
-          <!-- Redirect back to the contact page after submission -->
-          <input type="hidden" name="_next"       value="https://signheresigns.ca/pages/contact?sent=1">
-          <!-- Template: use FormSubmit default styled email -->
-          <input type="hidden" name="_template"   value="table">
-          <!-- Honeypot anti-spam — bots fill it, humans don't -->
-          <input type="text"   name="_honey"      style="display:none" tabindex="-1" aria-hidden="true">
+          <!-- Honeypot anti-spam — hidden from real users, traps bots -->
+          <input type="text" name="_honey" style="display:none" tabindex="-1" aria-hidden="true">
 
           <!-- ── Row 1: Name + Email ──────────────────────────── -->
           <div class="form-row">
@@ -205,7 +204,7 @@
           <!-- ── Required note ─────────────────────────────────── -->
           <p class="required-note">
             <abbr title="Required" class="required-mark" aria-hidden="true">*</abbr>
-            Indicates a required field
+            
           </p>
 
           <!-- ── Submit ────────────────────────────────────────── -->
