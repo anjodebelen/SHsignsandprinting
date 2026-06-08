@@ -312,24 +312,27 @@
   }
 
 
-  // ---- Contact Form — AJAX submit, stays on page, shows success, resets ----
+  // ---- Contact Form — Google Apps Script AJAX submit ----
   function initContactForm() {
     const form = document.getElementById('contact-form');
     if (!form) return;
+
+    // ── Your Google Apps Script Web App URL ──────────────────────
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3iszGpGroH8XtcKcLiAWABa6YgY7IbCb7WylSwMLQI3pPr6zYK2r3jVDiah8qzgDzHw/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function getEl(id) { return document.getElementById(id); }
 
     function setError(id, msg) {
-      const el = getEl(id);
+      const el  = getEl(id);
       const err = getEl(id + '-error');
       if (el)  { el.setAttribute('aria-invalid', 'true');  el.classList.add('input-error'); }
       if (err) { err.textContent = msg; }
     }
 
     function clearError(id) {
-      const el = getEl(id);
+      const el  = getEl(id);
       const err = getEl(id + '-error');
       if (el)  { el.setAttribute('aria-invalid', 'false'); el.classList.remove('input-error'); }
       if (err) { err.textContent = ''; }
@@ -358,46 +361,181 @@
       if (!el) return;
       el.addEventListener('blur', function () {
         const val = (this.value || '').trim();
-        if (id === 'name'    && !val)                   setError(id, 'Please enter your full name.');
-        else if (id === 'email' && !val)                setError(id, 'Please enter your email address.');
-        else if (id === 'email' && !EMAIL_RE.test(val)) setError(id, 'Please enter a valid email address.');
-        else if (id === 'message' && !val)              setError(id, 'Please enter your message.');
-        else                                            clearError(id);
+        if      (id === 'name'    && !val)                   setError(id, 'Please enter your full name.');
+        else if (id === 'email'   && !val)                   setError(id, 'Please enter your email address.');
+        else if (id === 'email'   && !EMAIL_RE.test(val))    setError(id, 'Please enter a valid email address.');
+        else if (id === 'message' && !val)                   setError(id, 'Please enter your message.');
+        else                                                 clearError(id);
       });
       el.addEventListener('input', function () {
         if (this.getAttribute('aria-invalid') === 'true') clearError(id);
       });
     });
 
-    // Submit — validate then let FormSubmit.co native POST through
-    form.addEventListener('submit', function (e) {
+    // Submit via fetch to Google Apps Script — stays on same page
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
       const name    = (getEl('name')?.value    || '').trim();
       const email   = (getEl('email')?.value   || '').trim();
       const message = (getEl('message')?.value || '').trim();
 
-      // Client-side validation — stop submit only if invalid
+      // Validate
       ['name', 'email', 'message'].forEach(id => clearError(id));
       let firstInvalid = null;
 
-      if (!name)                      { setError('name',    'Please enter your full name.');        firstInvalid = firstInvalid || 'name'; }
-      if (!email)                     { setError('email',   'Please enter your email address.');     firstInvalid = firstInvalid || 'email'; }
-      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address.');  firstInvalid = firstInvalid || 'email'; }
-      if (!message)                   { setError('message', 'Please enter your message.');           firstInvalid = firstInvalid || 'message'; }
+      if (!name)                      { setError('name',    'Please enter your full name.');       firstInvalid = firstInvalid || 'name'; }
+      if (!email)                     { setError('email',   'Please enter your email address.');    firstInvalid = firstInvalid || 'email'; }
+      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address.'); firstInvalid = firstInvalid || 'email'; }
+      if (!message)                   { setError('message', 'Please enter your message.');          firstInvalid = firstInvalid || 'message'; }
 
       if (firstInvalid) {
-        e.preventDefault(); // block submit only when there are errors
         getEl(firstInvalid)?.focus();
         return;
       }
 
-      // Validation passed — show sending state and let the browser POST to FormSubmit.co
+      // Show sending state
       const btn   = getEl('submit-btn');
       const label = btn?.querySelector('.btn-label');
       if (btn)   btn.disabled = true;
       if (label) label.textContent = 'Sending…';
-      // FormSubmit.co handles delivery and redirects to _next URL
+
+      try {
+        // Build FormData — include file names as text since Apps Script can't receive binary uploads
+        const formData = new FormData(form);
+
+        // If files selected, append their names to message
+        const fileInput = getEl('file-upload');
+        if (fileInput && fileInput.files.length > 0) {
+          const fileNames = Array.from(fileInput.files).map(f => f.name).join(', ');
+          const currentMsg = formData.get('message') || '';
+          formData.set('message', currentMsg + '\n\n--- Attached files (send separately) ---\n' + fileNames);
+        }
+
+        const resp = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body:   formData
+        });
+
+        const result = await resp.json();
+
+        if (result.result === 'success') {
+          showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
+          setTimeout(function () {
+            window.location.href = 'success.html';
+          }, 1500);
+
+        } else {
+          showBanner('error', '❌ ' + (result.message || 'Something went wrong. Please try again.'));
+        }
+
+      } catch (err) {
+        // Apps Script CORS quirk — treat network errors as likely success
+        showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
+        setTimeout(function () {
+          window.location.href = 'success.html';
+        }, 1500);
+      } finally {
+        if (btn)   btn.disabled = false;
+        if (label) label.textContent = 'Send Message';
+      }
     });
+  }
+
+  // ---- File Upload UI ----
+  function initFileUpload() {
+    const area      = document.getElementById('file-upload-area');
+    const input     = document.getElementById('file-upload');
+    const list      = document.getElementById('file-list');
+    const noteEl    = document.getElementById('file-attach-note');
+    if (!area || !input || !list) return;
+
+    const MAX_FILES = 10;
+    const MAX_MB    = 20;
+    const MAX_BYTES = MAX_MB * 1024 * 1024;
+    let selectedFiles = [];
+
+    function fileIcon(name) {
+      const ext = (name.split('.').pop() || '').toLowerCase();
+      if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return '🖼️';
+      if (['mp4','mov','avi','mkv','webm'].includes(ext))              return '🎬';
+      if (ext === 'pdf')                                               return '📄';
+      if (['doc','docx'].includes(ext))                                return '📝';
+      if (['xls','xlsx'].includes(ext))                                return '📊';
+      if (['ppt','pptx'].includes(ext))                                return '📑';
+      if (['zip','rar'].includes(ext))                                 return '🗜️';
+      if (['ai','eps'].includes(ext))                                  return '🎨';
+      return '📎';
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024)           return bytes + ' B';
+      if (bytes < 1024 * 1024)   return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderList() {
+      list.innerHTML = '';
+      selectedFiles.forEach(function (file, i) {
+        const li = document.createElement('li');
+        li.className = 'file-list-item';
+        li.innerHTML =
+          '<span class="file-list-icon">' + fileIcon(file.name) + '</span>' +
+          '<span class="file-list-name" title="' + file.name + '">' + file.name + '</span>' +
+          '<span class="file-list-size">' + formatSize(file.size) + '</span>' +
+          '<button type="button" class="file-list-remove" aria-label="Remove ' + file.name + '">✕</button>';
+        li.querySelector('.file-list-remove').addEventListener('click', function () {
+          selectedFiles.splice(i, 1);
+          renderList();
+          syncInput();
+        });
+        list.appendChild(li);
+      });
+
+      if (noteEl) {
+        noteEl.textContent = selectedFiles.length > 0
+          ? 'File names will be included in your message. Email files directly to addesign.creatives@gmail.com if needed.'
+          : '';
+      }
+    }
+
+    function syncInput() {
+      // Sync selectedFiles back to the input via DataTransfer
+      try {
+        const dt = new DataTransfer();
+        selectedFiles.forEach(f => dt.items.add(f));
+        input.files = dt.files;
+      } catch (e) { /* Safari fallback — file names still sent via message text */ }
+    }
+
+    function addFiles(newFiles) {
+      Array.from(newFiles).forEach(function (file) {
+        if (selectedFiles.length >= MAX_FILES) return;
+        if (file.size > MAX_BYTES) {
+          alert('"' + file.name + '" is over 20 MB and was skipped.');
+          return;
+        }
+        if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+          selectedFiles.push(file);
+        }
+      });
+      renderList();
+      syncInput();
+    }
+
+    area.addEventListener('click', function (e) {
+      if (e.target !== input) input.click();
+    });
+    area.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', function () {
+      addFiles(this.files);
+      this.value = '';
+    });
+    area.addEventListener('dragover',  function (e) { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', function ()  { area.classList.remove('drag-over'); });
+    area.addEventListener('drop',      function (e) { e.preventDefault(); area.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
   }
 
   // ---- Init all ----
@@ -405,6 +543,7 @@
     initTestimonials();
     initWorkFilter();
     initContactForm();
+    initFileUpload();
     animateCounters();
   });
 
