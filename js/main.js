@@ -282,93 +282,7 @@
     });
   }
 
-  // ---- Contact form with Formspree ----
-  function initContactForm() {
-    const form = document.getElementById('contact-form');
-    if (!form) return;
-
-    // ── Helpers ──────────────────────────────────────────────────
-    const sanitize = str => (str || '').replace(/[<>]/g, '').trim();
-    const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    function getEl(id) { return document.getElementById(id); }
-
-    function setError(inputId, msg) {
-      const input = getEl(inputId);
-      const errEl = getEl(inputId + '-error');
-      if (!input) return;
-      input.setAttribute('aria-invalid', 'true');
-      input.classList.add('input-error');
-      if (errEl) errEl.textContent = msg;
-    }
-
-    function clearError(inputId) {
-      const input = getEl(inputId);
-      const errEl = getEl(inputId + '-error');
-      if (!input) return;
-      input.setAttribute('aria-invalid', 'false');
-      input.classList.remove('input-error');
-      if (errEl) errEl.textContent = '';
-    }
-
-    // ── Character counter on textarea ────────────────────────────
-    const msgArea  = getEl('message');
-    const charCount = getEl('char-count');
-    if (msgArea && charCount) {
-      msgArea.addEventListener('input', function () {
-        charCount.textContent = this.value.length;
-      });
-    }
-
-    // ── Inline validation on blur (real-time feedback) ───────────
-    ['name', 'email', 'message'].forEach(function (id) {
-      const el = getEl(id);
-      if (!el) return;
-      el.addEventListener('blur', function () {
-        const val = sanitize(this.value);
-        if (id === 'name'    && !val)                   setError(id, 'Please enter your full name.');
-        else if (id === 'email' && !val)                setError(id, 'Please enter your email address.');
-        else if (id === 'email' && !EMAIL_RE.test(val)) setError(id, 'Please enter a valid email address (e.g. you@example.com).');
-        else if (id === 'message' && !val)              setError(id, 'Please enter a message.');
-        else                                            clearError(id);
-      });
-      el.addEventListener('input', function () {
-        if (this.getAttribute('aria-invalid') === 'true') clearError(id);
-      });
-    });
-
-    // ── Submit — validate then let FormSubmit native POST through ─
-    form.addEventListener('submit', function (e) {
-      const name    = sanitize(getEl('name')?.value);
-      const email   = sanitize(getEl('email')?.value);
-      const message = sanitize(getEl('message')?.value);
-
-      // Clear previous errors
-      ['name', 'email', 'message'].forEach(id => clearError(id));
-
-      let firstInvalid = null;
-      if (!name)                      { setError('name',    'Please enter your full name.');                               firstInvalid = firstInvalid || 'name'; }
-      if (!email)                     { setError('email',   'Please enter your email address.');                           firstInvalid = firstInvalid || 'email'; }
-      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address (e.g. you@example.com).'); firstInvalid = firstInvalid || 'email'; }
-      if (!message)                   { setError('message', 'Please enter your message.');                                 firstInvalid = firstInvalid || 'message'; }
-
-      if (firstInvalid) {
-        // Stop the POST — show errors and focus first invalid field
-        e.preventDefault();
-        getEl(firstInvalid)?.focus();
-        return;
-      }
-
-      // Validation passed — show sending state then let the form POST naturally
-      const submitBtn = getEl('submit-btn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        const label = submitBtn.querySelector('.btn-label');
-        if (label) label.textContent = 'Sending…';
-      }
-      // FormSubmit handles delivery and redirects to _next URL
-    });
-  }
+ 
 
   // ---- Animated counter ----
   function animateCounters() {
@@ -395,6 +309,130 @@
     }, { threshold: 0.5 });
 
     counters.forEach(c => counterObserver.observe(c));
+  }
+
+
+  // ---- Contact Form — AJAX submit, stays on page, shows success, resets ----
+  function initContactForm() {
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function getEl(id) { return document.getElementById(id); }
+
+    function setError(id, msg) {
+      const el = getEl(id);
+      const err = getEl(id + '-error');
+      if (el)  { el.setAttribute('aria-invalid', 'true');  el.classList.add('input-error'); }
+      if (err) { err.textContent = msg; }
+    }
+
+    function clearError(id) {
+      const el = getEl(id);
+      const err = getEl(id + '-error');
+      if (el)  { el.setAttribute('aria-invalid', 'false'); el.classList.remove('input-error'); }
+      if (err) { err.textContent = ''; }
+    }
+
+    function showBanner(type, msg) {
+      const banner = getEl('form-message');
+      if (!banner) return;
+      banner.className = 'form-message ' + type;
+      banner.textContent = msg;
+      banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Character counter
+    const msgArea   = getEl('message');
+    const charCount = getEl('char-count');
+    if (msgArea && charCount) {
+      msgArea.addEventListener('input', function () {
+        charCount.textContent = this.value.length;
+      });
+    }
+
+    // Real-time blur validation
+    ['name', 'email', 'message'].forEach(function (id) {
+      const el = getEl(id);
+      if (!el) return;
+      el.addEventListener('blur', function () {
+        const val = (this.value || '').trim();
+        if (id === 'name'    && !val)                   setError(id, 'Please enter your full name.');
+        else if (id === 'email' && !val)                setError(id, 'Please enter your email address.');
+        else if (id === 'email' && !EMAIL_RE.test(val)) setError(id, 'Please enter a valid email address.');
+        else if (id === 'message' && !val)              setError(id, 'Please enter your message.');
+        else                                            clearError(id);
+      });
+      el.addEventListener('input', function () {
+        if (this.getAttribute('aria-invalid') === 'true') clearError(id);
+      });
+    });
+
+    // Submit via fetch — stay on page
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault(); // stop native navigation
+
+      const name    = (getEl('name')?.value    || '').trim();
+      const email   = (getEl('email')?.value   || '').trim();
+      const message = (getEl('message')?.value || '').trim();
+
+      // Client-side validation
+      ['name', 'email', 'message'].forEach(id => clearError(id));
+      let firstInvalid = null;
+
+      if (!name)                      { setError('name',    'Please enter your full name.');          firstInvalid = firstInvalid || 'name'; }
+      if (!email)                     { setError('email',   'Please enter your email address.');       firstInvalid = firstInvalid || 'email'; }
+      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address.');    firstInvalid = firstInvalid || 'email'; }
+      if (!message)                   { setError('message', 'Please enter your message.');             firstInvalid = firstInvalid || 'message'; }
+
+      if (firstInvalid) {
+        getEl(firstInvalid)?.focus();
+        return;
+      }
+
+      // Disable button while sending
+      const btn   = getEl('submit-btn');
+      const label = btn?.querySelector('.btn-label');
+      if (btn)   btn.disabled = true;
+      if (label) label.textContent = 'Sending…';
+
+      try {
+        const resp   = await fetch('send-mail.php', {
+          method: 'POST',
+          body:   new FormData(form)
+        });
+        const result = await resp.json();
+
+        if (result.success) {
+          // Show success message
+          showBanner('success', '✅ Thank you! Your message has been sent. We\'ll get back to you soon.');
+
+          // Reset form fields and char counter
+          form.reset();
+          if (charCount) charCount.textContent = '0';
+          ['name', 'email', 'message'].forEach(id => clearError(id));
+
+          // Scroll to top of form so user sees the success banner
+          form.closest('.contact-form-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+          // Auto-clear the banner after 6 seconds so form is ready for a new message
+          setTimeout(function () {
+            const banner = getEl('form-message');
+            if (banner) { banner.className = 'form-message'; banner.textContent = ''; }
+          }, 6000);
+
+        } else {
+          showBanner('error', '❌ ' + (result.message || 'Could not send message. Please try again.'));
+        }
+
+      } catch (err) {
+        showBanner('error', '❌ Network error. Please check your connection or call us at 306-773-8850.');
+      } finally {
+        if (btn)   btn.disabled = false;
+        if (label) label.textContent = 'Send Message';
+      }
+    });
   }
 
   // ---- Init all ----
