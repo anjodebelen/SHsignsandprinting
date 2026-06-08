@@ -79,8 +79,17 @@
           autocomplete="on"
           aria-labelledby="contact-heading"
         >
+          <!-- ── FormSubmit.co configuration ──────────────────── -->
+          <!-- Redirect back to contact page after success -->
+          <input type="hidden" name="_next"     value="https://signheresigns.ca/pages/contact?sent=1">
+          <!-- Custom email subject -->
+          <input type="hidden" name="_subject"  value="New Enquiry — Sign Here Signs &amp; Printing">
+          <!-- Disable FormSubmit's own captcha (we use honeypot) -->
+          <input type="hidden" name="_captcha"  value="false">
+          <!-- Use the clean table template -->
+          <input type="hidden" name="_template" value="table">
           <!-- Honeypot anti-spam — hidden from real users, traps bots -->
-          <input type="text" name="_honey" style="display:none" tabindex="-1" aria-hidden="true">
+          <input type="text"   name="_honey"    style="display:none" tabindex="-1" aria-hidden="true">
 
           <!-- ── Row 1: Name + Email ──────────────────────────── -->
           <div class="form-row">
