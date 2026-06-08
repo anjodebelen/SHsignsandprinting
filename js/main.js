@@ -369,69 +369,34 @@
       });
     });
 
-    // Submit via fetch — stay on page
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault(); // stop native navigation
+    // Submit — validate then let FormSubmit.co native POST through
+    form.addEventListener('submit', function (e) {
 
       const name    = (getEl('name')?.value    || '').trim();
       const email   = (getEl('email')?.value   || '').trim();
       const message = (getEl('message')?.value || '').trim();
 
-      // Client-side validation
+      // Client-side validation — stop submit only if invalid
       ['name', 'email', 'message'].forEach(id => clearError(id));
       let firstInvalid = null;
 
-      if (!name)                      { setError('name',    'Please enter your full name.');          firstInvalid = firstInvalid || 'name'; }
-      if (!email)                     { setError('email',   'Please enter your email address.');       firstInvalid = firstInvalid || 'email'; }
-      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address.');    firstInvalid = firstInvalid || 'email'; }
-      if (!message)                   { setError('message', 'Please enter your message.');             firstInvalid = firstInvalid || 'message'; }
+      if (!name)                      { setError('name',    'Please enter your full name.');        firstInvalid = firstInvalid || 'name'; }
+      if (!email)                     { setError('email',   'Please enter your email address.');     firstInvalid = firstInvalid || 'email'; }
+      else if (!EMAIL_RE.test(email)) { setError('email',   'Please enter a valid email address.');  firstInvalid = firstInvalid || 'email'; }
+      if (!message)                   { setError('message', 'Please enter your message.');           firstInvalid = firstInvalid || 'message'; }
 
       if (firstInvalid) {
+        e.preventDefault(); // block submit only when there are errors
         getEl(firstInvalid)?.focus();
         return;
       }
 
-      // Disable button while sending
+      // Validation passed — show sending state and let the browser POST to FormSubmit.co
       const btn   = getEl('submit-btn');
       const label = btn?.querySelector('.btn-label');
       if (btn)   btn.disabled = true;
       if (label) label.textContent = 'Sending…';
-
-      try {
-        const resp   = await fetch('send-mail.php', {
-          method: 'POST',
-          body:   new FormData(form)
-        });
-        const result = await resp.json();
-
-        if (result.success) {
-          // Show success message
-          showBanner('success', '✅ Thank you! Your message has been sent. We\'ll get back to you soon.');
-
-          // Reset form fields and char counter
-          form.reset();
-          if (charCount) charCount.textContent = '0';
-          ['name', 'email', 'message'].forEach(id => clearError(id));
-
-          // Scroll to top of form so user sees the success banner
-          form.closest('.contact-form-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-          // Auto-clear the banner after 6 seconds so form is ready for a new message
-          setTimeout(function () {
-            const banner = getEl('form-message');
-            if (banner) { banner.className = 'form-message'; banner.textContent = ''; }
-          }, 6000);
-
-        } else {
-          showBanner('error', '❌ ' + (result.message || 'Could not send message. Please try again.'));
-        }
-
-      } catch (err) {
-        showBanner('error', '❌ Network error. Please check your connection or call us at 306-773-8850.');
-      } finally {
-        if (btn)   btn.disabled = false;
-        if (label) label.textContent = 'Send Message';
-      }
+      // FormSubmit.co handles delivery and redirects to _next URL
     });
   }
 
