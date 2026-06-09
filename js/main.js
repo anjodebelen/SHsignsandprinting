@@ -2,8 +2,6 @@
    SIGN HERE SIGNS & PRINTING - MAIN JS
    ============================================ */
 
-// ---- Security: Content Security basics ----
-
 'use strict';
 
 // ===========================
@@ -18,7 +16,7 @@
   // Disable right-click context menu on entire page
   document.addEventListener('contextmenu', e => e.preventDefault());
 
-  // Also disable on sensitive areas (keep for extra coverage)
+  // Also disable on sensitive areas
   document.querySelectorAll('.no-select').forEach(el => {
     el.addEventListener('contextmenu', e => e.preventDefault());
   });
@@ -62,11 +60,9 @@
       hamburger.classList.toggle('open', isOpen);
       hamburger.setAttribute('aria-expanded', isOpen);
       document.body.style.overflow = isOpen ? 'hidden' : '';
-      // Keep navbar above the fullscreen overlay
       navbar.style.zIndex = isOpen ? '1001' : '1000';
     });
 
-    // Close menu when any link is clicked
     navMenu.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         hamburger.classList.remove('open');
@@ -77,7 +73,6 @@
       });
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && navMenu.classList.contains('open')) {
         hamburger.classList.remove('open');
@@ -113,7 +108,7 @@
 
   revealEls.forEach(el => observer.observe(el));
 
-  // ---- Parallax on scroll (subtle) ----
+  // ---- Parallax on scroll ----
   const parallaxEls = document.querySelectorAll('[data-parallax]');
   if (parallaxEls.length) {
     window.addEventListener('scroll', () => {
@@ -127,42 +122,12 @@
 
   // ---- Testimonials slider ----
   const testimonials = [
-    {
-      name: 'Darnell Millman',
-      initials: 'DM',
-      text: 'I highly recommend this business. They do quality work, they are fast and worth every dollar. They\'ve printed off numerous projects for me and they\'ve all turned out amazing.',
-      stars: 5
-    },
-    {
-      name: 'Raelene Stewart',
-      initials: 'RS',
-      text: 'Made a promise to get some work done and went above and beyond what was required to get the job done. Highly recommend.',
-      stars: 5
-    },
-    {
-      name: 'Lee Harding',
-      initials: 'LH',
-      text: 'They do great work but you should stop in just to see the fantastic old photos and signs all over the walls of the interior. It\'s like a bonus heritage site!',
-      stars: 5
-    },
-    {
-      name: 'Matthew C',
-      initials: 'MC',
-      text: 'The speed in which they completed was great. Comparing other competitors pricing and quality were the best. I will be going back for all my business and personal needs.',
-      stars: 5
-    },
-    {
-      name: 'Nathan H',
-      initials: 'NH',
-      text: 'Very friendly customer service! Excellent work! Good people to do business with!',
-      stars: 5
-    },
-    {
-      name: 'Connie Farrow',
-      initials: 'CF',
-      text: 'Amazing service. Friendly fast and will help you get what you need!',
-      stars: 5
-    }
+    { name: 'Darnell Millman', initials: 'DM', text: 'I highly recommend this business. They do quality work, they are fast and worth every dollar. They\'ve printed off numerous projects for me and they\'ve all turned out amazing.', stars: 5 },
+    { name: 'Raelene Stewart', initials: 'RS', text: 'Made a promise to get some work done and went above and beyond what was required to get the job done. Highly recommend.', stars: 5 },
+    { name: 'Lee Harding', initials: 'LH', text: 'They do great work but you should stop in just to see the fantastic old photos and signs all over the walls of the interior. It\'s like a bonus heritage site!', stars: 5 },
+    { name: 'Matthew C', initials: 'MC', text: 'The speed in which they completed was great. Comparing other competitors pricing and quality were the best. I will be going back for all my business and personal needs.', stars: 5 },
+    { name: 'Nathan H', initials: 'NH', text: 'Very friendly customer service! Excellent work! Good people to do business with!', stars: 5 },
+    { name: 'Connie Farrow', initials: 'CF', text: 'Amazing service. Friendly fast and will help you get what you need!', stars: 5 }
   ];
 
   function initTestimonials() {
@@ -170,7 +135,6 @@
     const dotsContainer = document.querySelector('.testimonials-dots');
     const prevBtn = document.querySelector('.testimonials-prev');
     const nextBtn = document.querySelector('.testimonials-next');
-
     if (!track) return;
 
     let currentPage = 0;
@@ -207,7 +171,6 @@
         track.style.opacity = '1';
         track.style.transform = 'translateY(0)';
 
-        // Update dots
         if (dotsContainer) {
           dotsContainer.querySelectorAll('.testimonial-dot').forEach((dot, i) => {
             dot.classList.toggle('active', i === page);
@@ -218,7 +181,6 @@
       track.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     }
 
-    // Create dots
     if (dotsContainer) {
       dotsContainer.innerHTML = '';
       for (let i = 0; i < totalPages; i++) {
@@ -248,7 +210,6 @@
     renderPage(0);
   }
 
-  // ---- XSS protection helper ----
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
@@ -259,7 +220,6 @@
   function initWorkFilter() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     const workItems = document.querySelectorAll('.work-item');
-
     if (!filterBtns.length) return;
 
     filterBtns.forEach(btn => {
@@ -314,7 +274,7 @@
     const form = document.getElementById('contact-form');
     if (!form) return;
 
-    // ── Your Google Apps Script Web App URL ──────────────────────
+    // ⚠️ IMPORTANT: This URL must match your Google Apps Script deployment!
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhG9uZBoiYtcHpVua1qqgubQ76bPoh8ml-Q5wgQQYoZtgVn9KH_WXe54CJlptclMF9/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -369,7 +329,7 @@
       });
     });
 
-    // Submit via fetch to Google Apps Script — stays on same page
+    // Submit via fetch to Google Apps Script
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -377,7 +337,6 @@
       const email   = (getEl('email')?.value   || '').trim();
       const message = (getEl('message')?.value || '').trim();
 
-      // Validate
       ['name', 'email', 'message'].forEach(id => clearError(id));
       let firstInvalid = null;
 
@@ -391,7 +350,6 @@
         return;
       }
 
-      // Show sending state
       const btn   = getEl('submit-btn');
       const label = btn?.querySelector('.btn-label');
       if (btn)   btn.disabled = true;
@@ -403,14 +361,21 @@
         // This includes ALL fields including any file input with name="attachment"
         const formData = new FormData(form);
 
+        // ✅ Log what we're sending (for debugging — can remove later)
+        console.log('Form entries:');
+        for (let pair of formData.entries()) {
+          if (pair[1] instanceof File) {
+            console.log('  FILE:', pair[0], '=', pair[1].name, '(' + pair[1].size + ' bytes)');
+          } else {
+            console.log('  TEXT:', pair[0], '=', pair[1]);
+          }
+        }
+
         const resp = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           body:   formData
-          // ❌ DO NOT set Content-Type header — browser sets it automatically
-          // with the correct multipart/form-data boundary
         });
 
-        // Apps Script often returns text/plain for redirects — handle both
         const text = await resp.text();
         let result;
         try { result = JSON.parse(text); }
@@ -437,7 +402,7 @@
     });
   }
 
-  // ---- File Upload UI ----
+  // ---- File Upload UI (FIXED) ----
   function initFileUpload() {
     const area      = document.getElementById('file-upload-area');
     const input     = document.getElementById('file-upload');
@@ -446,8 +411,7 @@
     if (!area || !input || !list) return;
 
     const MAX_FILES = 10;
-    const MAX_MB    = 20;
-    const MAX_BYTES = MAX_MB * 1024 * 1024;
+    const MAX_BYTES = 20 * 1024 * 1024;
     let selectedFiles = [];
 
     function fileIcon(name) {
@@ -479,7 +443,9 @@
           '<span class="file-list-name" title="' + file.name + '">' + file.name + '</span>' +
           '<span class="file-list-size">' + formatSize(file.size) + '</span>' +
           '<button type="button" class="file-list-remove" aria-label="Remove ' + file.name + '">✕</button>';
-        li.querySelector('.file-list-remove').addEventListener('click', function () {
+        li.querySelector('.file-list-remove').addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
           selectedFiles.splice(i, 1);
           renderList();
           syncInput();
@@ -489,18 +455,21 @@
 
       if (noteEl) {
         noteEl.textContent = selectedFiles.length > 0
-          ? 'Files will be attached to your email. Max 20MB per file.'
+          ? selectedFiles.length + ' file(s) ready to send. Max 20MB per file.'
           : '';
       }
     }
 
     function syncInput() {
-      // Sync selectedFiles back to the input via DataTransfer
+      // ✅ Sync selectedFiles back to the input via DataTransfer
       try {
         const dt = new DataTransfer();
         selectedFiles.forEach(f => dt.items.add(f));
         input.files = dt.files;
-      } catch (e) { /* Safari fallback — file names still sent via message text */ }
+        console.log('Synced ' + input.files.length + ' file(s) to input element');
+      } catch (e) {
+        console.error('DataTransfer sync failed:', e);
+      }
     }
 
     function addFiles(newFiles) {
@@ -519,18 +488,43 @@
     }
 
     area.addEventListener('click', function (e) {
-      if (e.target !== input) input.click();
+      // ✅ Only open file picker if not clicking on a button or input
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+        input.click();
+      }
     });
+
     area.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        input.click();
+      }
     });
-    input.addEventListener('change', function () {
-      addFiles(this.files);
-      this.value = '';
+
+    input.addEventListener('change', function (e) {
+      e.stopPropagation();
+      if (this.files && this.files.length > 0) {
+        console.log('File(s) selected:', this.files.length);
+        addFiles(this.files);
+      }
+      // ✅ DO NOT clear this.value — it wipes the files!
+      // DataTransfer syncInput() handles the file list
     });
-    area.addEventListener('dragover',  function (e) { e.preventDefault(); area.classList.add('drag-over'); });
-    area.addEventListener('dragleave', function ()  { area.classList.remove('drag-over'); });
-    area.addEventListener('drop',      function (e) { e.preventDefault(); area.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
+
+    area.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      area.classList.add('drag-over');
+    });
+    area.addEventListener('dragleave', function () {
+      area.classList.remove('drag-over');
+    });
+    area.addEventListener('drop', function (e) {
+      e.preventDefault();
+      area.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        addFiles(e.dataTransfer.files);
+      }
+    });
   }
 
   // ---- Init all ----
@@ -542,7 +536,6 @@
     animateCounters();
   });
 
-  // Also run reveal check after DOM
   document.addEventListener('DOMContentLoaded', () => {
     revealEls.forEach(el => observer.observe(el));
   });
@@ -550,13 +543,13 @@
 })();
 
 // ===========================
-// HERO MARQUEE — FILL-AND-LOOP (seamless, viewport-aware)
+// HERO MARQUEE
 // ===========================
 (function () {
   'use strict';
 
-  const SPEED  = 0.45;  // px per frame
-  const GAP    = 12;    // must match CSS gap on .hm-track
+  const SPEED  = 0.45;
+  const GAP    = 12;
 
   const rows = document.querySelectorAll('.hm-row');
   if (!rows.length) return;
@@ -570,22 +563,17 @@
       var track    = row.querySelector('.hm-track');
       var dir      = parseFloat(row.dataset.direction) || 1;
 
-      // 1. Remove any previously injected clones (data-clone attr)
       Array.from(track.querySelectorAll('[data-clone]')).forEach(function (el) {
         track.removeChild(el);
       });
 
-      // 2. Snapshot originals
       var originals = Array.from(track.children);
 
-      // 3. Measure one set width using getBoundingClientRect (sub-pixel accurate)
       var setWidth = 0;
       originals.forEach(function (card) {
         setWidth += card.getBoundingClientRect().width + GAP;
       });
 
-      // 4. Calculate how many full copies we need so total > viewport * 2
-      //    This guarantees the loop boundary is always off-screen
       var needed  = Math.ceil((window.innerWidth * 2) / setWidth) + 1;
 
       for (var c = 0; c < needed; c++) {
@@ -596,8 +584,6 @@
         });
       }
 
-      // 5. For left-scroll (dir=1)  start at x=0 — cards already fill from left
-      //    For right-scroll (dir=-1) start at -setWidth so it scrolls rightward into view
       var startX = dir === -1 ? -setWidth : 0;
 
       track.style.transform = 'translateX(' + startX + 'px)';
@@ -610,7 +596,6 @@
     state.forEach(function (s) {
       s.x -= SPEED * s.dir;
 
-      // Loop back exactly one set-width — invisible because clones are identical
       if (s.dir ===  1 && s.x <= -s.setWidth) s.x += s.setWidth;
       if (s.dir === -1 && s.x >=  0)          s.x -= s.setWidth;
 
@@ -619,11 +604,9 @@
     requestAnimationFrame(tick);
   }
 
-  // Build after fonts + layout are stable, then start the RAF loop
   function start() {
     requestAnimationFrame(function () {
       buildMarquee();
-      // Rebuild on resize so clone count stays correct
       var resizeTimer;
       window.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
@@ -647,27 +630,21 @@
   'use strict';
 
   function lockAssets() {
-    // All img and svg elements
     const assets = document.querySelectorAll('img, svg');
 
     assets.forEach(function (el) {
-      // Block drag start
       el.addEventListener('dragstart', function (e) { e.preventDefault(); return false; }, true);
-      // Block right-click / long-press context menu
       el.addEventListener('contextmenu', function (e) { e.preventDefault(); return false; }, true);
-      // Block touch-hold on mobile (iOS callout)
       el.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: true });
     });
   }
 
-  // Run on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', lockAssets);
   } else {
     lockAssets();
   }
 
-  // Also catch any dynamically inserted images (e.g. marquee clones)
   if (window.MutationObserver) {
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
@@ -695,43 +672,14 @@
 
   document.addEventListener('keydown', function (e) {
     var key = e.key ? e.key.toLowerCase() : '';
-    var ctrl = e.ctrlKey || e.metaKey; // metaKey covers Cmd on Mac
+    var ctrl = e.ctrlKey || e.metaKey;
 
-    // Ctrl+U — View Source
-    if (ctrl && key === 'u') {
-      e.preventDefault();
-      return false;
-    }
-
-    // F12 — DevTools
-    if (e.keyCode === 123) {
-      e.preventDefault();
-      return false;
-    }
-
-    // Ctrl+Shift+I — DevTools (Inspector)
-    if (ctrl && e.shiftKey && key === 'i') {
-      e.preventDefault();
-      return false;
-    }
-
-    // Ctrl+Shift+J — DevTools (Console)
-    if (ctrl && e.shiftKey && key === 'j') {
-      e.preventDefault();
-      return false;
-    }
-
-    // Ctrl+Shift+C — DevTools (Element picker)
-    if (ctrl && e.shiftKey && key === 'c') {
-      e.preventDefault();
-      return false;
-    }
-
-    // Ctrl+S — Save page
-    if (ctrl && key === 's') {
-      e.preventDefault();
-      return false;
-    }
-  }, true); // capture phase so it fires before anything else
+    if (ctrl && key === 'u') { e.preventDefault(); return false; }
+    if (e.keyCode === 123)  { e.preventDefault(); return false; }
+    if (ctrl && e.shiftKey && key === 'i') { e.preventDefault(); return false; }
+    if (ctrl && e.shiftKey && key === 'j') { e.preventDefault(); return false; }
+    if (ctrl && e.shiftKey && key === 'c') { e.preventDefault(); return false; }
+    if (ctrl && key === 's') { e.preventDefault(); return false; }
+  }, true);
 
 })();
