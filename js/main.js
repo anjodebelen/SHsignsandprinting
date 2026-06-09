@@ -315,7 +315,7 @@
     if (!form) return;
 
     // ── Your Google Apps Script Web App URL ──────────────────────
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLOWcTfOSOwEuC91-TxlLTeHFU-eo3Pcy9uSVobhVV-WhY0azXiS8N3cZ0PVcQ3NpKqA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhG9uZBoiYtcHpVua1qqgubQ76bPoh8ml-Q5wgQQYoZtgVn9KH_WXe54CJlptclMF9/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -729,12 +729,6 @@
 
     // Ctrl+S — Save page
     if (ctrl && key === 's') {
-      e.preventDefault();
-      return false;
-    }
-
-    // Ctrl+A — Select all
-    if (ctrl && key === 'a') {
       e.preventDefault();
       return false;
     }
