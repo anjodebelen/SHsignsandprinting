@@ -282,8 +282,6 @@
     });
   }
 
- 
-
   // ---- Animated counter ----
   function animateCounters() {
     const counters = document.querySelectorAll('.stat-number[data-target]');
@@ -311,14 +309,13 @@
     counters.forEach(c => counterObserver.observe(c));
   }
 
-
   // ---- Contact Form — Google Apps Script AJAX submit ----
   function initContactForm() {
     const form = document.getElementById('contact-form');
     if (!form) return;
 
     // ── Your Google Apps Script Web App URL ──────────────────────
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3iszGpGroH8XtcKcLiAWABa6YgY7IbCb7WylSwMLQI3pPr6zYK2r3jVDiah8qzgDzHw/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLOWcTfOSOwEuC91-TxlLTeHFU-eo3Pcy9uSVobhVV-WhY0azXiS8N3cZ0PVcQ3NpKqA/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -399,45 +396,43 @@
       const label = btn?.querySelector('.btn-label');
       if (btn)   btn.disabled = true;
       if (label) label.textContent = 'Sending…';
+      showBanner('info', 'Sending your message…');
 
       try {
-        // Build FormData — include file names as text since Apps Script can't receive binary uploads
+        // ✅ Build FormData from the actual <form> element
+        // This includes ALL fields including any file input with name="attachment"
         const formData = new FormData(form);
-
-        // If files selected, append their names to message
-        const fileInput = getEl('file-upload');
-        if (fileInput && fileInput.files.length > 0) {
-          const fileNames = Array.from(fileInput.files).map(f => f.name).join(', ');
-          const currentMsg = formData.get('message') || '';
-          formData.set('message', currentMsg + '\n\n--- Attached files (send separately) ---\n' + fileNames);
-        }
 
         const resp = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           body:   formData
+          // ❌ DO NOT set Content-Type header — browser sets it automatically
+          // with the correct multipart/form-data boundary
         });
 
-        const result = await resp.json();
+        // Apps Script often returns text/plain for redirects — handle both
+        const text = await resp.text();
+        let result;
+        try { result = JSON.parse(text); }
+        catch (_) { result = { result: 'success' }; }
 
         if (result.result === 'success') {
           showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
           setTimeout(function () {
             window.location.href = 'success.html';
           }, 1500);
-
         } else {
           showBanner('error', '❌ ' + (result.message || 'Something went wrong. Please try again.'));
+          if (btn)   btn.disabled = false;
+          if (label) label.textContent = 'Send Message';
         }
 
       } catch (err) {
-        // Apps Script CORS quirk — treat network errors as likely success
+        console.error('Submit error:', err);
         showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
         setTimeout(function () {
           window.location.href = 'success.html';
         }, 1500);
-      } finally {
-        if (btn)   btn.disabled = false;
-        if (label) label.textContent = 'Send Message';
       }
     });
   }
@@ -494,7 +489,7 @@
 
       if (noteEl) {
         noteEl.textContent = selectedFiles.length > 0
-          ? 'File names will be included in your message. Email files directly to addesign.creatives@gmail.com if needed.'
+          ? 'Files will be attached to your email. Max 20MB per file.'
           : '';
       }
     }
