@@ -275,7 +275,7 @@
     if (!form) return;
 
     // ⚠️ IMPORTANT: This URL must match your Google Apps Script deployment!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhG9uZBoiYtcHpVua1qqgubQ76bPoh8ml-Q5wgQQYoZtgVn9KH_WXe54CJlptclMF9/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbykNKskTrGKeNDkhillnLXpxh_gq2Axzk7W6j2spKtTCiT4-6XIFTu665Od68bkopFY/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
