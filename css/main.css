@@ -283,7 +283,7 @@ p { color: var(--text-mid); font-size: 1rem; }
   width: 24px;
   height: 2px;
   background: #2e7d32;
-  border-radius: 0px;
+  border-radius: 2px;
   transition: var(--transition);
 }
 .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
