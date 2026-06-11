@@ -906,3 +906,28 @@
   margin-top: 8px;
   font-style: italic;
 }
+
+/* ── Upload loading bar ─────────────────────────────────────── */
+.upload-loading-wrap {
+  margin-top: 12px;
+}
+.upload-loading-track {
+  height: 6px;
+  background: #d7ead9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.upload-loading-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2e7d32, #4caf50);
+  border-radius: 99px;
+  transition: width 0.35s ease;
+}
+.upload-loading-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  font-style: italic;
+}
