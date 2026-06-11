@@ -242,6 +242,14 @@
             </div>
             <ul class="file-list" id="file-list" aria-label="Selected files" aria-live="polite"></ul>
             <p class="file-attach-note" id="file-attach-note"></p>
+
+            <!-- Loading bar — shown while encoding + sending files -->
+            <div id="upload-loading-wrap" hidden aria-hidden="true" class="upload-loading-wrap">
+              <div class="upload-loading-track">
+                <div id="upload-loading-bar" class="upload-loading-bar"></div>
+              </div>
+              <span id="upload-loading-label" class="upload-loading-label">Uploading…</span>
+            </div>
           </div>
 
           <!-- ── Submit ────────────────────────────────────────── -->
