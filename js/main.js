@@ -275,7 +275,7 @@
     if (!form) return;
 
     // ⚠️ IMPORTANT: This URL must match your Google Apps Script deployment!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbykNKskTrGKeNDkhillnLXpxh_gq2Axzk7W6j2spKtTCiT4-6XIFTu665Od68bkopFY/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBOiwMXFTaAakgRHtCnGk3QK9bmVL6SBngiHawZWX5Sn2p3kqN2KWY2WZhbb2gAoxeKA/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -354,27 +354,74 @@
       const label = btn?.querySelector('.btn-label');
       if (btn)   btn.disabled = true;
       if (label) label.textContent = 'Sending…';
-      showBanner('info', 'Sending your message…');
+
+      // Loading bar elements
+      const loadingWrap = getEl('upload-loading-wrap');
+      const loadingBar  = getEl('upload-loading-bar');
+      const loadingLbl  = getEl('upload-loading-label');
+
+      function setProgress(pct, text) {
+        if (loadingWrap) loadingWrap.hidden = false;
+        if (loadingBar)  loadingBar.style.width = pct + '%';
+        if (loadingLbl)  loadingLbl.textContent = text || '';
+      }
+      function hideProgress() {
+        setTimeout(function () {
+          if (loadingWrap) loadingWrap.hidden = true;
+          if (loadingBar)  loadingBar.style.width = '0%';
+        }, 800);
+      }
 
       try {
-        // ✅ Build FormData from the actual <form> element
-        // This includes ALL fields including any file input with name="attachment"
-        const formData = new FormData(form);
+        // ── Step 1: Encode each selected file to Base64 ──────────
+        // Google Apps Script CANNOT receive binary FormData.
+        // It only reads e.postData.contents (JSON string).
+        // We encode every file as Base64 and send in a JSON payload.
+        const fileInput = getEl('file-upload');
+        const files = fileInput ? Array.from(fileInput.files) : [];
+        const encodedFiles = [];
 
-        // ✅ Log what we're sending (for debugging — can remove later)
-        console.log('Form entries:');
-        for (let pair of formData.entries()) {
-          if (pair[1] instanceof File) {
-            console.log('  FILE:', pair[0], '=', pair[1].name, '(' + pair[1].size + ' bytes)');
-          } else {
-            console.log('  TEXT:', pair[0], '=', pair[1]);
-          }
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          setProgress(Math.round((i / (files.length || 1)) * 60), 'Encoding files… ' + (i + 1) + ' of ' + files.length);
+
+          const base64 = await new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+            reader.onload  = () => resolve(reader.result.split(',')[1]); // strip "data:...;base64,"
+            reader.onerror = () => reject(new Error('Could not read ' + file.name));
+            reader.readAsDataURL(file);
+          });
+
+          encodedFiles.push({
+            name:   file.name,
+            type:   file.type || 'application/octet-stream',
+            base64: base64
+          });
         }
 
+        // ── Step 2: Build JSON payload ───────────────────────────
+        setProgress(75, 'Sending…');
+
+        const payload = {
+          fullname: (getEl('name')?.value    || '').trim(),
+          email:    (getEl('email')?.value   || '').trim(),
+          phone:    (getEl('phone')?.value   || '').trim(),
+          service:  (getEl('subject')?.value || '').trim(),
+          message:  (getEl('message')?.value || '').trim(),
+          _honey:   '',
+          files:    encodedFiles
+        };
+
+        // ── Step 3: POST JSON to Google Apps Script ──────────────
+        setProgress(90, 'Almost done…');
+
         const resp = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          body:   formData
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload)
         });
+
+        setProgress(100, 'Done!');
 
         const text = await resp.text();
         let result;
@@ -382,11 +429,13 @@
         catch (_) { result = { result: 'success' }; }
 
         if (result.result === 'success') {
+          hideProgress();
           showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
           setTimeout(function () {
             window.location.href = 'success.html';
           }, 1500);
         } else {
+          hideProgress();
           showBanner('error', '❌ ' + (result.message || 'Something went wrong. Please try again.'));
           if (btn)   btn.disabled = false;
           if (label) label.textContent = 'Send Message';
@@ -394,6 +443,8 @@
 
       } catch (err) {
         console.error('Submit error:', err);
+        hideProgress();
+        // Apps Script CORS quirk can cause fetch to throw even on success
         showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
         setTimeout(function () {
           window.location.href = 'success.html';
