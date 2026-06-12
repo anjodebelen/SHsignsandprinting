@@ -275,7 +275,7 @@
     if (!form) return;
 
     // ⚠️ IMPORTANT: This URL must match your Google Apps Script deployment!
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBOiwMXFTaAakgRHtCnGk3QK9bmVL6SBngiHawZWX5Sn2p3kqN2KWY2WZhbb2gAoxeKA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmszFNiB186Ylg7evnB5m9qV_G4F1gpvjpfVPRtX72ethKG9jKt8AhCWx_F1tHl0Hl/exec';
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -355,7 +355,6 @@
       if (btn)   btn.disabled = true;
       if (label) label.textContent = 'Sending…';
 
-      // Loading bar elements
       const loadingWrap = getEl('upload-loading-wrap');
       const loadingBar  = getEl('upload-loading-bar');
       const loadingLbl  = getEl('upload-loading-label');
@@ -373,82 +372,68 @@
       }
 
       try {
-        // ── Step 1: Encode each selected file to Base64 ──────────
-        // Google Apps Script CANNOT receive binary FormData.
-        // It only reads e.postData.contents (JSON string).
-        // We encode every file as Base64 and send in a JSON payload.
-        const fileInput = getEl('file-upload');
-        const files = fileInput ? Array.from(fileInput.files) : [];
+        // ── Step 1: Encode each file to Base64 ───────────────────
+        const fileInput   = getEl('file-upload');
+        const files       = fileInput ? Array.from(fileInput.files) : [];
         const encodedFiles = [];
 
         for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          setProgress(Math.round((i / (files.length || 1)) * 60), 'Encoding files… ' + (i + 1) + ' of ' + files.length);
-
+          setProgress(
+            Math.round(((i) / Math.max(files.length, 1)) * 60),
+            'Encoding file ' + (i + 1) + ' of ' + files.length + '…'
+          );
+          const file   = files[i];
           const base64 = await new Promise(function (resolve, reject) {
             const reader = new FileReader();
-            reader.onload  = () => resolve(reader.result.split(',')[1]); // strip "data:...;base64,"
+            reader.onload  = () => resolve(reader.result.split(',')[1]);
             reader.onerror = () => reject(new Error('Could not read ' + file.name));
             reader.readAsDataURL(file);
           });
-
-          encodedFiles.push({
-            name:   file.name,
-            type:   file.type || 'application/octet-stream',
-            base64: base64
-          });
+          encodedFiles.push({ name: file.name, type: file.type || 'application/octet-stream', base64: base64 });
         }
 
-        // ── Step 2: Build JSON payload ───────────────────────────
-        setProgress(75, 'Sending…');
+        setProgress(70, 'Sending…');
 
-        const payload = {
-          fullname: (getEl('name')?.value    || '').trim(),
-          email:    (getEl('email')?.value   || '').trim(),
-          phone:    (getEl('phone')?.value   || '').trim(),
-          service:  (getEl('subject')?.value || '').trim(),
-          message:  (getEl('message')?.value || '').trim(),
-          _honey:   '',
-          files:    encodedFiles
-        };
+        // ── Step 2: Build FormData — Apps Script reads e.parameter ─
+        // Using FormData + mode:'no-cors' is the ONLY reliable way to
+        // POST to Google Apps Script from a browser without CORS errors.
+        // JSON + fetch gets blocked by the preflight OPTIONS request.
+        const fd = new FormData();
+        fd.append('fullname', (getEl('name')?.value    || '').trim());
+        fd.append('email',    (getEl('email')?.value   || '').trim());
+        fd.append('phone',    (getEl('phone')?.value   || '').trim());
+        fd.append('service',  (getEl('subject')?.value || '').trim());
+        fd.append('message',  (getEl('message')?.value || '').trim());
 
-        // ── Step 3: POST JSON to Google Apps Script ──────────────
-        setProgress(90, 'Almost done…');
+        // Embed Base64 files as a JSON string in a single field
+        // Apps Script reads: JSON.parse(e.parameter.filesJson)
+        fd.append('filesJson', JSON.stringify(encodedFiles));
 
-        const resp = await fetch(APPS_SCRIPT_URL, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(payload)
+        setProgress(85, 'Sending…');
+
+        // no-cors: browser won't throw on CORS mismatch,
+        // response is opaque (we can't read it) but Apps Script DOES receive the POST
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body:   fd,
+          mode:   'no-cors'
         });
 
-        setProgress(100, 'Done!');
-
-        const text = await resp.text();
-        let result;
-        try { result = JSON.parse(text); }
-        catch (_) { result = { result: 'success' }; }
-
-        if (result.result === 'success') {
-          hideProgress();
-          showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
-          setTimeout(function () {
-            window.location.href = 'success.html';
-          }, 1500);
-        } else {
-          hideProgress();
-          showBanner('error', '❌ ' + (result.message || 'Something went wrong. Please try again.'));
-          if (btn)   btn.disabled = false;
-          if (label) label.textContent = 'Send Message';
-        }
-
-      } catch (err) {
-        console.error('Submit error:', err);
+        setProgress(100, 'Sent!');
         hideProgress();
-        // Apps Script CORS quirk can cause fetch to throw even on success
+
+        // With no-cors we never get a readable response — treat reaching here as success
         showBanner('success', '✅ Thank you! Your message has been sent. Redirecting…');
         setTimeout(function () {
           window.location.href = 'success.html';
         }, 1500);
+
+      } catch (err) {
+        console.error('Submit error:', err);
+        hideProgress();
+        showBanner('error', '❌ Could not send your message. Please email us at addesign.creatives@gmail.com or call 306-773-8850.');
+        if (btn)   btn.disabled = false;
+        if (label) label.textContent = 'Send Message';
       }
     });
   }
